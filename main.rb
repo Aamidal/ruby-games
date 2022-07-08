@@ -13,6 +13,7 @@ class GameSelect
   attr_accessor :games
 
   def initialize
+    @current_game = nil
     @games = []
     load_games
     @quit = games.length + 1
@@ -23,18 +24,23 @@ class GameSelect
     chosen = nil
     main_menu
     chosen = choice_input while chosen.nil?
+    quit_game if %w[q Q].include?(chosen)
+    @current_game = games[chosen - 1].Game.new
   end
 
   private
 
+  def quit_game
+    puts 'Thanks for playing!'
+    exit
+  end
+
   def choice_input
     puts 'Input a number to choose a game.'
-    begin
-      input = gets.chomp[0].to_i
-    rescue
-      puts "Invalid selection. Enter '1-#{@quit}'!"
-    end
-    input if input == @quit || input - 1 <= games.length
+    input = gets.chomp[0]
+    return input if input == 'Q' || input.to_i.between?(1, games.length + 1)
+
+    nil
   end
 
   def main_menu
