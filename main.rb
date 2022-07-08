@@ -25,7 +25,8 @@ class GameSelect
     main_menu
     chosen = choice_input while chosen.nil?
     quit_game if %w[q Q].include?(chosen)
-    @current_game = games[chosen - 1].Game.new
+    @current_game = Object.const_get games[chosen.to_i - 1].titleize.gsub(' ', '')
+    @current_game.new
   end
 
   private
