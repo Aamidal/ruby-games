@@ -31,25 +31,26 @@
 # A Fresh Game of Tic-Tac-Toe
 class TicTacToe
   attr_reader :p1, :p2
-    
+
   def initialize
-    puts 'Welcome to Tic-Tac-Toe!'.center(80)
+    puts 'Welcome to Tic-Tac-Toe!'.center(80).freeze
     Player.reset
     @p1 = Player.new
     @p2 = Player.new
     puts "Good Luck, #{p1.name} (#{p1.symbol}) and #{p2.name} (#{p2.symbol})!"
     #@board = Board.new
   end
-
 end
 
+# Constructs players
 class Player
   attr_accessor :name, :symbol, :color
+
   @@player_count = 0
   @@symbols = []
   @@players = []
 
-  COLORS = { red: 31, green: 32, yellow: 33, blue: 34, magenta: 35, cyan: 36 }
+  COLORS = { red: 31, green: 32, yellow: 33, blue: 34, magenta: 35, cyan: 36 }.freeze
 
   def initialize
     @@player_count += 1
@@ -66,50 +67,44 @@ class Player
   end
 
   private
-  
+
   def ask_name
     puts "Player #{@@player_count}, what is your name?"
-    input = input_verification('name')
+    input = input_verification('name', @@players)
     @@players << input.downcase
     input
   end
 
   def ask_symbol
     puts "#{name}, choose a 1-character marker!"
-    input = input_verification('symbol')
+    input = input_verification('symbol', @@symbols)
     @@symbols << input.downcase
     input
   end
 
   def ask_color
     puts "#{name}, what's your favorite color?"
-    COLORS.each { |color, value| puts "#{value - 30}. " + "#{color}".colorize(value) }
-    color_value = nil
-    while color.nil?
-      input = gets.chomp.to_i
-      if input.between?(1, 6)
-        return color_value = 30 + input
-      else
-        puts('Sorry! '.red + "#{input} is an invalid input!")
-      end
+    list_colors
+    choice = nil
+    while choice.nil?
+      input = gets.chomp[0].to_i
+      input.between?(1, 6) ? choice = 30 + input : puts('Invalid input!'.red.freeze)
     end
+    choice
   end
 
-  def input_verification(type)
-    empty = "Empty input detected, try again!"
+  def list_colors
+    COLORS.each { |color, value| puts "#{value - 30}. " + color.to_s.colorize(value) }
+  end
+
+  def input_verification(type, list)
+    empty = 'Empty input detected, try again!'.freeze
     taken = 'Sorry! '.red + "That #{type} has already been taken!"
     verified = false
     until verified
       input = gets.chomp
       puts empty if input.strip == ''
-      case type
-      when 'name'
-        @@players.include?(input.downcase) ? puts(taken) : verified = true
-      when 'symbol'
-        @@symbols.include?(input.downcase) ? puts(taken) : verified = true
-      else
-        puts "Unknown case error!".red
-      end
+      list.include?(input.downcase) ? puts(taken) : verified = true
     end
     input
   end
