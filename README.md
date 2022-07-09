@@ -1,2 +1,2 @@
 # ruby-games
-A collection of small games built in Ruby
+This repo houses small games built as projects for The Odin Project's Ruby on Rails curriculum.
