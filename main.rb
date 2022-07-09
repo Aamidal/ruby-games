@@ -18,7 +18,7 @@ class GameSelect
     chosen = nil
     main_menu
     chosen = choice_input while chosen.nil?
-    quit_game if %w[q Q].include?(chosen)
+    quit_game if chosen == @quit
     @current_game = Object.const_get games[chosen.to_i - 1].titleize.gsub(' ', '')
     @current_game.new
   end
@@ -32,8 +32,8 @@ class GameSelect
 
   def choice_input
     puts 'Input a number to choose a game.'
-    input = gets.chomp[0]
-    return input if input == 'Q' || input.to_i.between?(1, games.length + 1)
+    input = gets.chomp[0].to_i
+    return input if input == @quit || input.between?(1, games.length)
 
     nil
   end
