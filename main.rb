@@ -65,4 +65,4 @@ class GameSelect
   end
 end
 
-main = GameSelect.new
+GameSelect.new
