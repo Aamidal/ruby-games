@@ -2,25 +2,31 @@ require_relative 'lib/timegreet'
 require_relative 'lib/string_methods'
 
 # Runs the Games!
-class GameSelect
+class Main
   include Timegreet
-  attr_accessor :games
+  attr_accessor :games, :current_game, :run
 
   def initialize
-    @current_game = nil
     @games = []
     load_games
     @quit = games.length + 1
-    select_game
+    @run = true
+    new_game
   end
 
   def select_game
-    chosen = nil
     main_menu
+    chosen = nil
     chosen = choice_input while chosen.nil?
     quit_game if chosen == @quit
-    @current_game = Object.const_get games[chosen.to_i - 1].titleize.gsub(' ', '')
-    @current_game.new
+    Object.const_get games[chosen.to_i - 1].titleize.gsub(' ', '')
+  end
+
+  def new_game
+    while run
+      @current_game = select_game
+      current_game.new
+    end
   end
 
   private
@@ -65,4 +71,4 @@ class GameSelect
   end
 end
 
-GameSelect.new
+loader = Main.new

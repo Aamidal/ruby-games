@@ -36,15 +36,17 @@ class TicTacToe
     puts 'Welcome to Tic-Tac-Toe!'.center(80).freeze
     @p1 = Player.new(1)
     @p2 = Player.new(2)
-    @board = Board.new
-    puts "Have fun, #{@p1.name} (#{@p1.symbol}) and #{@p2.name} (#{@p2.symbol})!"
     play
   end
 
   def play
+    puts "Have fun, #{@p1.name} (#{@p1.symbol}) and #{@p2.name} (#{@p2.symbol})!"
+    @board = Board.new
     board.display
     alternate_players
     result
+    puts 'Would you like to play again? (Y/N)'.freeze
+    again?
   end
 
   def turn(player)
@@ -87,6 +89,19 @@ class TicTacToe
       puts "Congratulations #{@current_player.name}! You won!"
     else
       puts "Well played, #{p1.name} and #{p2.name}, the game is drawn!"
+    end
+  end
+
+  def again?
+    input = gets.chomp
+    case input.downcase
+    when /y/
+      play
+    when /n/
+      puts 'Returning to main menu...'
+    else
+      puts 'Invalid input!'.red
+      again?
     end
   end
 end
