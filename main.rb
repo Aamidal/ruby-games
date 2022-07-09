@@ -1,13 +1,43 @@
 require_relative 'lib/timegreet'
 
-# Stealing from Rails
+# Getting cute
 class String
+  # Stealing from Rails
   def titleize
     split(/ |\_/).map(&:capitalize).join(' ')
   end
+
+  # colorization
+  def colorize(color_code)
+    "\e[#{color_code}m#{self}\e[0m"
+  end
+
+  def red
+    colorize(31)
+  end
+
+  def green
+    colorize(32)
+  end
+
+  def yellow
+    colorize(33)
+  end
+
+  def blue
+    colorize(34)
+  end
+
+  def pink
+    colorize(35)
+  end
+
+  def light_blue
+    colorize(36)
+  end
 end
 
-#Runs the Games!
+# Runs the Games!
 class GameSelect
   include Timegreet
   attr_accessor :games
@@ -46,7 +76,7 @@ class GameSelect
 
   def main_menu
     puts "\n \n#{Timegreet.say_hi} Which game would you like to play?"
-    games.each_with_index { |game, idx| puts "#{idx + 1}. #{game.gsub('_', ' ').titleize}" }
+    games.each_with_index { |game, idx| puts "#{idx + 1}. #{game.titleize}" }
     puts "#{@quit}. Quit \n"
   end
 
@@ -66,7 +96,7 @@ class GameSelect
       sleep 0.5
       print '.'
     end
-    print "Done! \n"
+    print "Done! \n".green
     puts "Added #{File.basename(game)} to library.".rjust(80)
   end
 end
