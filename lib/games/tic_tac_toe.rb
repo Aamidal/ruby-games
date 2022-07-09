@@ -1,4 +1,4 @@
-# # Tic-Tac-Toe
+# Tic-Tac-Toe
 
 # ### Objective
 # Build a functional tic-tac-toe game using OOP design which runs in the console.
@@ -30,56 +30,94 @@
 
 # A Fresh Game of Tic-Tac-Toe
 class TicTacToe
-  attr_reader :p1, :p2
+  attr_reader :p1, :p2, :board, :current_player
 
   def initialize
     puts 'Welcome to Tic-Tac-Toe!'.center(80).freeze
-    Player.reset
-    @p1 = Player.new
-    @p2 = Player.new
-    puts "Good Luck, #{p1.name} (#{p1.symbol}) and #{p2.name} (#{p2.symbol})!"
-    #@board = Board.new
+    @p1 = Player.new(1)
+    @p2 = Player.new(2)
+    @board = Board.new
+    puts "Have fun, #{@p1.name} (#{@p1.symbol}) and #{@p2.name} (#{@p2.symbol})!"
+    play
+  end
+
+  def play
+    board.display
+    alternate_players
+    result
+  end
+
+  def turn(player)
+    square = turn_input(player)
+    board.update_board(square - 1, player.symbol)
+    board.display
+  end
+
+  private
+
+  def alternate_players
+    @current_player = p1
+    until board.full?
+      turn(current_player)
+      break if board.won?
+
+      @current_player = switch_current_player
+    end
+  end
+
+  def turn_input(player)
+    puts "#{player.name} it's your turn!"
+    number = gets.chomp.to_i
+    return number if board.legal?(number)
+
+    puts 'Invalid input!'.red
+    turn_input(player)
+  end
+
+  def switch_current_player
+    if current_player == p1
+      p2
+    else
+      p1
+    end
+  end
+
+  def result
+    if board.won?
+      puts "Congratulations #{@current_player.name}! You won!"
+    else
+      puts "Well played, #{p1.name} and #{p2.name}, the game is drawn!"
+    end
   end
 end
 
 # Constructs players
 class Player
-  attr_accessor :name, :symbol, :color
-
-  @@player_count = 0
-  @@symbols = []
-  @@players = []
+  attr_accessor :name, :symbol, :color, :number
 
   COLORS = { red: 31, green: 32, yellow: 33, blue: 34, magenta: 35, cyan: 36 }.freeze
 
-  def initialize
-    @@player_count += 1
+  @@symbols= []
+  @@names = []
+
+  def initialize(number)
+    @number = number
     @name = ask_name
     @color = ask_color
     @name = name.colorize(color)
     @symbol = ask_symbol[0].colorize(color)
   end
 
-  def self.reset
-    @@player_count = 0
-    @@symbols = []
-    @@players = []
-  end
-
   private
 
   def ask_name
-    puts "Player #{@@player_count}, what is your name?"
-    input = input_verification('name', @@players)
-    @@players << input.downcase
-    input
+    puts "Player #{number}, what is your name?"
+    valid?('name', @@names)
   end
 
   def ask_symbol
     puts "#{name}, choose a 1-character marker!"
-    input = input_verification('symbol', @@symbols)
-    @@symbols << input.downcase
-    input
+    valid?('symbol', @@symbols)
   end
 
   def ask_color
@@ -97,7 +135,7 @@ class Player
     COLORS.each { |color, value| puts "#{value - 30}. " + color.to_s.colorize(value) }
   end
 
-  def input_verification(type, list)
+  def valid?(type, list)
     empty = 'Empty input detected, try again!'.freeze
     taken = 'Sorry! '.red + "That #{type} has already been taken!"
     verified = false
@@ -106,6 +144,53 @@ class Player
       puts empty if input.strip == ''
       list.include?(input.downcase) ? puts(taken) : verified = true
     end
+    list << input.downcase
     input
+  end
+end
+
+# Constructs TicTacToe board
+class Board
+  attr_accessor :grid
+
+  # Define win conditions
+  WINS = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], # horizontal wins
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], # vertical wins
+    [0, 4, 8], [2, 4, 6]             # diagonal wins
+  ].freeze
+
+  def initialize
+    @grid = [*1..9]
+  end
+
+  def display
+    puts <<-HEREDOC
+
+               #{@grid[0]} | #{@grid[1]} | #{@grid[2]}
+              ---+---+---
+               #{@grid[3]} | #{@grid[4]} | #{@grid[5]}
+              ---+---+---
+               #{@grid[6]} | #{@grid[7]} | #{@grid[8]}
+
+    HEREDOC
+  end
+
+  def update_board(square, symbol)
+    @grid[square] = symbol
+  end
+
+  def legal?(square)
+    grid[square - 1] == square
+  end
+
+  def full?
+    grid.all? { |grid| grid =~ /[^0-9]/ }
+  end
+
+  def won?
+    WINS.any? do |win|
+      [grid[win[0]], grid[win[1]], grid[win[2]]].uniq.length == 1
+    end
   end
 end
