@@ -9,9 +9,13 @@ class Main
   def initialize
     @games = []
     load_games
-    @quit = games.length + 1
     @run = true
+    @quit = games.length + 1
     new_game
+  end
+
+  def new_game
+    select_game while run
   end
 
   def select_game
@@ -19,26 +23,30 @@ class Main
     chosen = nil
     chosen = choice_input while chosen.nil?
     quit_game if chosen == @quit
-    Object.const_get games[chosen.to_i - 1].titleize.gsub(' ', '')
+    chosen = Object.const_get games[chosen - 1].titleize.gsub(' ', '')
+    start_game(chosen)
   end
 
-  def new_game
-    while run
-      @current_game = select_game
-      current_game.new
-    end
+  def start_game(game)
+    @current_game = game
+    current_game.new
   end
 
   private
 
+  def prompt(question)
+    print question
+    gets
+  end
+
   def quit_game
+    @run = false
     puts 'Thanks for playing!'
     exit
   end
 
   def choice_input
-    puts 'Input a number to choose a game.'
-    input = gets.chomp[0].to_i
+    input = prompt("Input the game's number:").chomp.to_i
     return input if input == @quit || input.between?(1, games.length)
 
     nil
@@ -71,4 +79,4 @@ class Main
   end
 end
 
-loader = Main.new
+Main.new
