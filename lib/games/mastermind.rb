@@ -6,8 +6,7 @@ class Mastermind
     @code = nil
     @attempts = 12
     @current_hints = []
-    @all_guesses = []
-    @current_guess = nil
+    @history = []
     run
   end
 
@@ -20,8 +19,7 @@ class Mastermind
 
   def game_loop
     @attempts -= 1
-    @current_guess = validate_guess(prompt_guess)
-    @all_guesses << @current_guess
+    @history.push validate_guess(prompt_guess)
     feedback
   end
 
@@ -31,36 +29,36 @@ class Mastermind
 
   def prompt(text)
     print text
-    gets.chomp
+    gets.chomp.split('').map(&:to_i)
   end
 
   def prompt_guess
     prompt('What is your guess? (i.e. 1234) ')
   end
 
-  def validate_guess(input)
-    guess = input.split.map(&:to_i)
+  def validate_guess(guess)
     until guess.length == 4 && guess.all? { |n| n.between?(1, 6) }
       guess = prompt('Please enter a valid sequence of 4 numbers between 1-6.')
     end
+    guess
   end
 
-  def compare(user_input)
-    guess = user_input - @random_code
-    [find_correct(guess), find_almost_correct(guess)]
+  def compare(current_guess)
+    difference = current_guess - @code
+    [find_correct(difference), find_almost_correct(difference)]
   end
 
   def find_almost_correct(guess)
-    4 - guess.length?
+    4 - guess.length
   end
 
   def find_correct(guess)
-    @random_code.reduce(0) { |sum, n| sum + 1 if guess.include?(n) }
+    @code.reduce(0) { |sum, n| sum + 1 if guess.include?(n) }
   end
 
   def feedback
-    puts all_gueses
-    print @current_guess + compare(@current_guess)
+    puts "History: #{@history}"
+    puts "Difference #{compare(@history[-1])}"
   end
 
   def game_over
@@ -71,3 +69,5 @@ class Mastermind
     end
   end
 end
+
+Mastermind.new
