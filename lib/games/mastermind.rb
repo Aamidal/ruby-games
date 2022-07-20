@@ -7,6 +7,7 @@ class Mastermind
     @attempts = 12
     @current_hints = []
     @history = []
+    @current_guess = nil
     run
   end
 
@@ -14,12 +15,13 @@ class Mastermind
     @code = random_code
     p @code
     game_loop until @current_guess == @code || @attempts.zero?
-    results
+    game_over
   end
 
   def game_loop
     @attempts -= 1
     @history.push validate_guess(prompt_guess)
+    @current_guess = @history[-1]
     feedback
   end
 
@@ -43,31 +45,30 @@ class Mastermind
     guess
   end
 
-  def compare(current_guess)
-    difference = current_guess - @code
-    [find_correct(difference), find_almost_correct(difference)]
-  end
-
-  def find_almost_correct(guess)
-    4 - guess.length
-  end
-
-  def find_correct(guess)
-    @code.reduce(0) { |sum, n| sum + 1 if guess.include?(n) }
-  end
-
   def feedback
-    puts "History: #{@history}"
-    puts "Difference #{compare(@history[-1])}"
+    diff = @current_guess.map.with_index { |x, i| x == @code[i] }
+    puts "Previous Guesses: #{@history}"
+    print "Current Guess: #{@current_guess.join('')} "
+    puts "Correct: #{find_correct(diff)} Almost: #{find_almost(diff)}"
+    puts "Tries remaining: #{@attempts}"
+  end
+
+  def find_correct(diff)
+    diff.count true
+  end
+
+  def find_almost(diff)
+    incorrect = diff.each_index.reject { |i| diff[i] }
+    incorrect.reduce(0) { |sum, i| @code.include?(@current_guess[i]) ? sum + 1 : sum }
   end
 
   def game_over
-    if @current_guess == @random_code
+    if @current_guess == @code
       puts "You've won after #{12 - @attempts} guesses!"
     elsif @attempts.zero?
-      "You've lost!"
+      puts "You've lost!"
     end
   end
 end
 
-Mastermind.new
+# Mastermind.new
